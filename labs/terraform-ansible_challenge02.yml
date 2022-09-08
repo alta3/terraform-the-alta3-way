@@ -1,0 +1,39 @@
+---
+- name: Set users and copy keys
+  hosts: planetexpress
+  connection: ssh
+  gather_facts: no
+  
+  tasks:
+  - name: bootstrapping
+    become_method: su
+    become: yes
+    become_user: root
+    
+    block:  
+    # create new user on target system
+    - name: Add user
+      user:
+        name: "{{ user }}"
+        # password: alta3      # pass as hash
+        state: present
+        shell: /bin/bash       # Defaults to /bin/bash
+        system: no             # Defaults to no
+        createhome: yes        # Defaults to yes
+  
+    - name: Set authorized key taken from file
+      authorized_key:
+        user: "{{ user }}"
+        state: present
+        key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+
+    - name: "Update apt repos and Install package X"
+      apt:
+        update_cache: True
+        name:
+            - cmatrix
+            - moon-buggy
+        state: latest
+      
+# you can run the solution with
+# ansible-playbook playbook-futurama.yml -i hosts
