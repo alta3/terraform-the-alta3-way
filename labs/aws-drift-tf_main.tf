@@ -58,6 +58,7 @@ resource "aws_instance" "example" {
 
 resource "aws_security_group" "sg_ssh" {
   name = "sg_ssh"
+  vpc_id      = aws_default_vpc.default.id
   ingress {
     from_port   = "22"
     to_port     = "22"
@@ -70,5 +71,11 @@ resource "aws_security_group" "sg_ssh" {
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+resource "aws_default_vpc" "default" {
+  tags = {
+    Name = "Default VPC"
   }
 }
