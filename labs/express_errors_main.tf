@@ -1,6 +1,15 @@
 /* main.tf
    Alta3 Research - rzfeeser@alta3.com */
 
+terraform {
+  required_providers {
+    docker = {
+      source  = "kreuzwerker/docker"
+      version = "~> 2.13.0"
+    }
+  }
+}
+
 # interact with docker
 provider "docker" {}
 
