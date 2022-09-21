@@ -26,28 +26,19 @@ if [ ! -f "$LAB_ID/setup.sh" ]; then
     exit 1
 fi
 
-if [ "${LAB_ID}" != cka-exam ]; then
-    # check if a cluster exists
-    kubectl get nodes >> /dev/null
-    if [ $? -ne 0 ]; then
-        echo "[-] No kubernetes cluster found"
-        exit 1
+# run all teardowns
+echo "[+] Terraform Destroy Old Resources"
+TD_LOG_DIR=$(mktemp --directory --tmpdir "teardown.${LAB_ID}.XXXX")
+for f in *; do
+    export WAIT="false"
+    if [ "${f}" = "${LAB_ID}" ]; then
+        export WAIT="true"
     fi
-    
-    # run all teardowns
-    echo "[+] Cleaning cluster"
-    TD_LOG_DIR=$(mktemp --directory --tmpdir "teardown.${LAB_ID}.XXXX")
-    for f in *; do
-        export WAIT="false"
-        if [ "${f}" = "${LAB_ID}" ]; then
-            export WAIT="true"
-        fi
-        if [ -d "$f" ]; then
-            bash "${f}/teardown.sh" > "${TD_LOG_DIR}/$(now)_${f}_teardown.log" 2>&1 &
-        fi
-    done
-    wait
-fi
+    if [ -d "$f" ]; then
+        bash "${f}/teardown.sh" > "${TD_LOG_DIR}/$(now)_${f}_teardown.log" 2>&1 &
+    fi
+done
+wait
 
 # run this setup
 echo "[+] Preparing ${LAB_ID}"
